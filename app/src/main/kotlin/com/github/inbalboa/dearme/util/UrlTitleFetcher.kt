@@ -11,6 +11,11 @@ import java.util.regex.Pattern
 import java.util.zip.GZIPInputStream
 import java.util.zip.InflaterInputStream
 
+data class PageMetadata(
+    val title: String?,
+    val description: String?
+)
+
 object UrlTitleFetcher {
 
     private const val TIMEOUT_MS = 5000L
@@ -27,7 +32,14 @@ object UrlTitleFetcher {
      * @param url The URL to fetch the title from
      * @return The page title or null if unable to fetch
      */
-    suspend fun fetchTitle(url: String): String? = withContext(Dispatchers.IO) {
+    suspend fun fetchTitle(url: String): String? = fetchMetadata(url).title
+
+    /**
+     * Fetches Open Graph metadata (title, description) from the given URL
+     * @param url The URL to fetch metadata from
+     * @return PageMetadata with title and description (either may be null)
+     */
+    suspend fun fetchMetadata(url: String): PageMetadata = withContext(Dispatchers.IO) {
         withTimeoutOrNull(TIMEOUT_MS) {
             try {
                 val normalizedUrl = normalizeUrl(url)
@@ -47,23 +59,23 @@ object UrlTitleFetcher {
 
                 val responseCode = connection.responseCode
                 if (responseCode !in 200..299) {
-                    return@withTimeoutOrNull null
+                    return@withTimeoutOrNull PageMetadata(null, null)
                 }
 
                 val contentType = connection.contentType?.lowercase()
                 if (contentType?.contains("text/html") != true) {
-                    return@withTimeoutOrNull null
+                    return@withTimeoutOrNull PageMetadata(null, null)
                 }
 
                 val inputStream = getDecompressedInputStream(connection)
                 val content = inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
-                extractTitle(content)
+                extractMetadata(content)
             } catch (_: IOException) {
-                null
+                PageMetadata(null, null)
             } catch (_: Exception) {
-                null
+                PageMetadata(null, null)
             }
-        }
+        } ?: PageMetadata(null, null)
     }
 
     /**
@@ -105,22 +117,69 @@ object UrlTitleFetcher {
     }
 
     /**
-     * Extracts the title from HTML content
+     * Extracts title and description from HTML content, preferring OG meta tags
      */
-    private fun extractTitle(html: String): String? {
+    private fun extractMetadata(html: String): PageMetadata {
+        val ogTitle = extractMetaProperty(html, "og:title")
+        val title = ogTitle ?: extractHtmlTitle(html)
+        val description = extractMetaProperty(html, "og:description")
+            ?: extractMetaName(html, "description")
+        return PageMetadata(title, description)
+    }
+
+    /**
+     * Extracts the <title> tag content from HTML
+     */
+    private fun extractHtmlTitle(html: String): String? {
         val titlePattern = Pattern.compile("<title[^>]*>([^<]*)</title>", Pattern.CASE_INSENSITIVE)
         val matcher = titlePattern.matcher(html)
 
         return if (matcher.find()) {
             val title = matcher.group(1)?.trim()
-            if (title.isNullOrBlank()) {
-                null
-            } else {
-                cleanTitle(title)
-            }
+            if (title.isNullOrBlank()) null else cleanTitle(title)
         } else {
             null
         }
+    }
+
+    /**
+     * Extracts content from an Open Graph meta tag
+     */
+    private fun extractMetaProperty(html: String, property: String): String? {
+        val pattern = Pattern.compile(
+            """<meta\s[^>]*property\s*=\s*["']$property["'][^>]*content\s*=\s*["']([^"']*)["'][^>]*/?>""" +
+                "|" +
+                """<meta\s[^>]*content\s*=\s*["']([^"']*)["'][^>]*property\s*=\s*["']$property["'][^>]*/?>""",
+            Pattern.CASE_INSENSITIVE
+        )
+        val matcher = pattern.matcher(html)
+        if (matcher.find()) {
+            val content = (matcher.group(1) ?: matcher.group(2))?.trim()
+            if (!content.isNullOrBlank()) {
+                return cleanTitle(content)
+            }
+        }
+        return null
+    }
+
+    /**
+     * Extracts content from a meta tag by name attribute
+     */
+    private fun extractMetaName(html: String, name: String): String? {
+        val pattern = Pattern.compile(
+            """<meta\s[^>]*name\s*=\s*["']$name["'][^>]*content\s*=\s*["']([^"']*)["'][^>]*/?>""" +
+                "|" +
+                """<meta\s[^>]*content\s*=\s*["']([^"']*)["'][^>]*name\s*=\s*["']$name["'][^>]*/?>""",
+            Pattern.CASE_INSENSITIVE
+        )
+        val matcher = pattern.matcher(html)
+        if (matcher.find()) {
+            val content = (matcher.group(1) ?: matcher.group(2))?.trim()
+            if (!content.isNullOrBlank()) {
+                return cleanTitle(content)
+            }
+        }
+        return null
     }
 
     /**

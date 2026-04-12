@@ -88,14 +88,18 @@ class ShareActivity : Activity() {
         }
 
         CoroutineScope(Dispatchers.Main).launch {
+            var emailBody = sharedText
             val emailSubject = subject?.takeIf { it.isNotBlank() }
                 ?: savedSubject.ifBlank {
                     if (UrlTitleFetcher.isUrl(sharedText.trim())) {
                         try {
-                            val fetchedTitle = withContext(Dispatchers.IO) {
-                                UrlTitleFetcher.fetchTitle(sharedText.trim())
+                            val metadata = withContext(Dispatchers.IO) {
+                                UrlTitleFetcher.fetchMetadata(sharedText.trim())
                             }
-                            return@ifBlank fetchedTitle ?: "DearMe"
+                            if (!metadata.description.isNullOrBlank()) {
+                                emailBody = "$sharedText\n\n${metadata.description}"
+                            }
+                            return@ifBlank metadata.title ?: "DearMe"
                         } catch (_: Exception) {}
                     }
                     "DearMe"
@@ -108,7 +112,7 @@ class ShareActivity : Activity() {
                     smtpServer = smtpServer,
                     smtpPort = smtpPort,
                     subject = emailSubject,
-                    body = sharedText,
+                    body = emailBody,
                     header = header,
                     footer = footer
                 )

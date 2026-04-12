@@ -166,7 +166,7 @@ class EmailViewModel(
                     EmailResult.Success
                 } else {
                     EmailResult.Error(
-                        result.exceptionOrNull()?.message ?: "Failed to send email"
+                        EmailRepository.userFriendlyError(result.exceptionOrNull())
                     )
                 }
             )

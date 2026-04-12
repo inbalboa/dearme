@@ -8,6 +8,40 @@ import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
 
 class EmailRepository {
+
+    companion object {
+        fun userFriendlyError(throwable: Throwable?): String {
+            if (throwable == null) return "Failed to send email"
+            val message = throwable.message?.lowercase() ?: ""
+            return when {
+                throwable is AuthenticationFailedException ||
+                    message.contains("authentication failed") ||
+                    message.contains("invalid credentials") ||
+                    message.contains("username and password not accepted") ->
+                    "Authentication failed. Check your email and password."
+
+                throwable is java.net.UnknownHostException ||
+                    message.contains("unknown host") ->
+                    "Server not found. Check the SMTP server address."
+
+                throwable is java.net.ConnectException ||
+                    message.contains("connection refused") ->
+                    "Could not connect to server. Check the server address and port."
+
+                throwable is java.net.SocketTimeoutException ||
+                    message.contains("timed out") ||
+                    message.contains("timeout") ->
+                    "Connection timed out. Check your internet connection."
+
+                message.contains("ssl") || message.contains("tls") ||
+                    message.contains("certificate") ->
+                    "Secure connection failed. The server may not support the current security settings."
+
+                else -> throwable.message ?: "Failed to send email"
+            }
+        }
+    }
+
     suspend fun sendEmail(
         email: String,
         password: String,

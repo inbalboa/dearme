@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.github.inbalboa.dearme.mvi.EmailIntent
 import com.github.inbalboa.dearme.repository.EmailRepository
 import com.github.inbalboa.dearme.repository.PreferencesRepository
 import com.github.inbalboa.dearme.ui.EmailScreen
@@ -36,11 +34,6 @@ class MainActivity : ComponentActivity() {
                             emailRepository = EmailRepository(),
                             preferencesRepository = preferencesRepository
                         )
-                    }
-
-                    // Load settings when the app starts
-                    LaunchedEffect(Unit) {
-                        viewModel.handleIntent(EmailIntent.LoadSettings)
                     }
 
                     EmailScreen(viewModel)

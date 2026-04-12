@@ -29,7 +29,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -57,10 +56,6 @@ fun EmailScreen(
     viewModel: EmailViewModel = viewModel { EmailViewModel() }
 ) {
     val state by viewModel.state.collectAsState()
-
-    LaunchedEffect(Unit) {
-        viewModel.handleIntent(EmailIntent.LoadSettings)
-    }
 
     state.result?.let { result ->
         AlertDialog(

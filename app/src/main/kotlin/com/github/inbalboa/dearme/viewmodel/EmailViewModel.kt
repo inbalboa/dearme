@@ -21,6 +21,10 @@ class EmailViewModel(
     private val _state = MutableStateFlow(EmailState())
     val state: StateFlow<EmailState> = _state.asStateFlow()
 
+    init {
+        loadSettings()
+    }
+
     fun handleIntent(intent: EmailIntent) {
         when (intent) {
             is EmailIntent.LoadSettings -> loadSettings()

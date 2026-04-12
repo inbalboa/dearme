@@ -28,7 +28,7 @@ base {
 
 android {
     namespace 'com.github.inbalboa.dearme'
-    compileSdk 36
+    compileSdk = 36
 
     def code = gitCount()
     def name =  String.format('%s.%03d', getDateTime(), code)

@@ -2,6 +2,7 @@ package com.github.inbalboa.dearme.repository
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 
 class PreferencesRepository(context: Context) {
     private val preferences: SharedPreferences = context.getSharedPreferences(
@@ -21,31 +22,31 @@ class PreferencesRepository(context: Context) {
 
     // Save methods
     fun saveEmail(email: String) {
-        preferences.edit().putString(KEY_EMAIL, email).apply()
+        preferences.edit { putString(KEY_EMAIL, email) }
     }
 
     fun savePassword(password: String) {
-        preferences.edit().putString(KEY_PASSWORD, password).apply()
+        preferences.edit { putString(KEY_PASSWORD, password)}
     }
 
     fun saveSmtpServer(server: String) {
-        preferences.edit().putString(KEY_SMTP_SERVER, server).apply()
+        preferences.edit { putString(KEY_SMTP_SERVER, server)}
     }
 
     fun saveSmtpPort(port: String) {
-        preferences.edit().putString(KEY_SMTP_PORT, port).apply()
+        preferences.edit { putString(KEY_SMTP_PORT, port)}
     }
 
     fun saveSubject(subject: String) {
-        preferences.edit().putString(KEY_SUBJECT, subject).apply()
+        preferences.edit { putString(KEY_SUBJECT, subject)}
     }
 
     fun saveHeader(header: String) {
-        preferences.edit().putString(KEY_HEADER, header).apply()
+        preferences.edit { putString(KEY_HEADER, header) }
     }
 
     fun saveFooter(footer: String) {
-        preferences.edit().putString(KEY_FOOTER, footer).apply()
+        preferences.edit { putString(KEY_FOOTER, footer) }
     }
 
     // Load methods

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -35,19 +34,19 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import android.content.Intent
-import android.net.Uri
 import com.github.inbalboa.dearme.mvi.EmailIntent
 import com.github.inbalboa.dearme.mvi.EmailResult
 import com.github.inbalboa.dearme.viewmodel.EmailViewModel
@@ -123,7 +122,7 @@ fun EmailScreen(
     }
 
         if (state.showAboutDialog) {
-        val context = LocalContext.current
+        LocalContext.current
 
         AlertDialog(
             onDismissRequest = { viewModel.handleIntent(EmailIntent.DismissAboutDialog) },
@@ -158,35 +157,26 @@ fun EmailScreen(
                     )
 
                     // GitHub link
+                    val githubUrl = "https://github.com/inbalboa/dearme"
                     val githubText = buildAnnotatedString {
-                        pushStringAnnotation(
-                            tag = "github",
-                            annotation = "https://github.com/inbalboa/dearme"
-                        )
-                        withStyle(
-                            style = SpanStyle(
-                                color = androidx.compose.material3.MaterialTheme.colorScheme.primary,
-                                textDecoration = TextDecoration.Underline
+                        withLink(
+                            LinkAnnotation.Url(
+                                url = githubUrl,
+                                styles = TextLinkStyles(
+                                    style = SpanStyle(
+                                        color = androidx.compose.material3.MaterialTheme.colorScheme.primary,
+                                        textDecoration = TextDecoration.Underline
+                                    )
+                                )
                             )
                         ) {
-                            append("https://github.com/inbalboa/dearme")
+                            append(githubUrl)
                         }
-                        pop()
                     }
 
-                    ClickableText(
+                    Text(
                         text = githubText,
-                        style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
-                        onClick = { offset ->
-                            githubText.getStringAnnotations(
-                                tag = "github",
-                                start = offset,
-                                end = offset
-                            ).firstOrNull()?.let { annotation ->
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(annotation.item))
-                                context.startActivity(intent)
-                            }
-                        }
+                        style = androidx.compose.material3.MaterialTheme.typography.bodySmall
                     )
                 }
             },

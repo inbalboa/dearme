@@ -58,9 +58,9 @@ object UrlTitleFetcher {
                 val inputStream = getDecompressedInputStream(connection)
                 val content = inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
                 extractTitle(content)
-            } catch (e: IOException) {
+            } catch (_: IOException) {
                 null
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 null
             }
         }
@@ -77,14 +77,14 @@ object UrlTitleFetcher {
             "gzip" -> {
                 try {
                     GZIPInputStream(inputStream)
-                } catch (e: IOException) {
+                } catch (_: IOException) {
                     inputStream
                 }
             }
             "deflate" -> {
                 try {
                     InflaterInputStream(inputStream)
-                } catch (e: IOException) {
+                } catch (_: IOException) {
                     inputStream
                 }
             }

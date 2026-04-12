@@ -14,7 +14,11 @@ data class EmailState(
     val result: EmailResult? = null,
     val smtpAutofillSuggestion: SmtpConfig? = null,
     val showSmtpAutofillDialog: Boolean = false,
-    val showAboutDialog: Boolean = false
+    val showAboutDialog: Boolean = false,
+    val emailError: String? = null,
+    val passwordError: String? = null,
+    val smtpServerError: String? = null,
+    val smtpPortError: String? = null
 )
 
 sealed class EmailResult {

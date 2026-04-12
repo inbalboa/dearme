@@ -237,7 +237,9 @@ fun EmailScreen(
                     leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    singleLine = true
+                    singleLine = true,
+                    isError = state.emailError != null,
+                    supportingText = state.emailError?.let { { Text(it) } }
                 )
 
                 OutlinedTextField(
@@ -247,7 +249,9 @@ fun EmailScreen(
                     leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
                     modifier = Modifier.fillMaxWidth(),
                     visualTransformation = PasswordVisualTransformation(),
-                    singleLine = true
+                    singleLine = true,
+                    isError = state.passwordError != null,
+                    supportingText = state.passwordError?.let { { Text(it) } }
                 )
 
                 Row(
@@ -259,7 +263,9 @@ fun EmailScreen(
                         onValueChange = { viewModel.handleIntent(EmailIntent.UpdateSmtpServer(it)) },
                         label = { Text("SMTP Server") },
                         modifier = Modifier.weight(2f),
-                        singleLine = true
+                        singleLine = true,
+                        isError = state.smtpServerError != null,
+                        supportingText = state.smtpServerError?.let { { Text(it) } }
                     )
 
                     OutlinedTextField(
@@ -268,7 +274,9 @@ fun EmailScreen(
                         label = { Text("Port") },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        singleLine = true
+                        singleLine = true,
+                        isError = state.smtpPortError != null,
+                        supportingText = state.smtpPortError?.let { { Text(it) } }
                     )
                 }
             }
@@ -325,7 +333,7 @@ fun EmailScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
-            enabled = !state.isLoading
+            enabled = !state.isLoading && state.emailError == null && state.smtpServerError == null && state.smtpPortError == null
         ) {
             if (state.isLoading) {
                 CircularProgressIndicator(

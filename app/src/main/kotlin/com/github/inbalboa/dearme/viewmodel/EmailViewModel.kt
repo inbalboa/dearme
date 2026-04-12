@@ -66,7 +66,8 @@ class EmailViewModel(
     }
 
     private fun updateEmail(email: String) {
-        _state.value = _state.value.copy(email = email)
+        val error = if (email.isNotBlank() && !isValidEmail(email)) "Invalid email address" else null
+        _state.value = _state.value.copy(email = email, emailError = error)
         preferencesRepository?.saveEmail(email)
 
         // Check if we should suggest SMTP settings based on the email domain
@@ -85,17 +86,19 @@ class EmailViewModel(
     }
 
     private fun updatePassword(password: String) {
-        _state.value = _state.value.copy(password = password)
+        _state.value = _state.value.copy(password = password, passwordError = null)
         preferencesRepository?.savePassword(password)
     }
 
     private fun updateSmtpServer(server: String) {
-        _state.value = _state.value.copy(smtpServer = server)
+        val error = if (server.isNotBlank() && !isValidHostname(server)) "Invalid server address" else null
+        _state.value = _state.value.copy(smtpServer = server, smtpServerError = error)
         preferencesRepository?.saveSmtpServer(server)
     }
 
     private fun updateSmtpPort(port: String) {
-        _state.value = _state.value.copy(smtpPort = port)
+        val error = validatePort(port)
+        _state.value = _state.value.copy(smtpPort = port, smtpPortError = error)
         preferencesRepository?.saveSmtpPort(port)
     }
 
@@ -117,16 +120,28 @@ class EmailViewModel(
     private fun testEmail() {
         val currentState = _state.value
 
-        if (!isValidEmail(currentState.email)) {
-            _state.value = currentState.copy(
-                result = EmailResult.Error("Please enter a valid email address")
-            )
-            return
+        val emailError = when {
+            currentState.email.isBlank() -> "Email is required"
+            !isValidEmail(currentState.email) -> "Invalid email address"
+            else -> null
+        }
+        val passwordError = if (currentState.password.isBlank()) "Password is required" else null
+        val serverError = when {
+            currentState.smtpServer.isBlank() -> "SMTP server is required"
+            !isValidHostname(currentState.smtpServer) -> "Invalid server address"
+            else -> null
+        }
+        val portError = when {
+            currentState.smtpPort.isBlank() -> "Port is required"
+            else -> validatePort(currentState.smtpPort)
         }
 
-        if (currentState.password.isBlank()) {
+        if (emailError != null || passwordError != null || serverError != null || portError != null) {
             _state.value = currentState.copy(
-                result = EmailResult.Error("Please enter your email password")
+                emailError = emailError,
+                passwordError = passwordError,
+                smtpServerError = serverError,
+                smtpPortError = portError
             )
             return
         }
@@ -195,5 +210,18 @@ class EmailViewModel(
 
     private fun isValidEmail(email: String): Boolean {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    }
+
+    private fun isValidHostname(hostname: String): Boolean {
+        val trimmed = hostname.trim()
+        if (trimmed.length > 253) return false
+        val hostnameRegex = Regex("^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}$")
+        return hostnameRegex.matches(trimmed)
+    }
+
+    private fun validatePort(port: String): String? {
+        val portNum = port.toIntOrNull() ?: return "Port must be a number"
+        if (portNum !in 1..65535) return "Port must be 1-65535"
+        return null
     }
 }

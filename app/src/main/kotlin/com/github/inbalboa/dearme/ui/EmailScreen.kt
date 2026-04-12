@@ -33,6 +33,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -337,13 +339,15 @@ fun EmailScreen(
         ) {
             if (state.isLoading) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier
+                        .size(20.dp)
+                        .semantics { contentDescription = "Sending in progress" },
                     strokeWidth = 2.dp
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Sending...")
             } else {
-                Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null)
+                Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Test the connection")
             }

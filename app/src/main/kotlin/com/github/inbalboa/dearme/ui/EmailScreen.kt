@@ -146,7 +146,7 @@ fun EmailScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "Version: 1.0.0",
+                        text = "Version: ${com.github.inbalboa.dearme.BuildConfig.VERSION_NAME}",
                         style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
                         color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
                     )

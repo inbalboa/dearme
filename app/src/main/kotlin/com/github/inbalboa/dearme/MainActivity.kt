@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize().safeDrawingPadding(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val preferencesRepository = PreferencesRepository(this@MainActivity)
+                    val preferencesRepository = PreferencesRepository.getInstance(this@MainActivity)
                     val viewModel: EmailViewModel = viewModel {
                         EmailViewModel(
                             emailRepository = EmailRepository(),

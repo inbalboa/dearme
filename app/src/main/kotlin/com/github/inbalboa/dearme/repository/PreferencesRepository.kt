@@ -6,18 +6,20 @@ import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 
-class PreferencesRepository(context: Context) {
-    private val preferences: SharedPreferences = context.getSharedPreferences(
+class PreferencesRepository private constructor(context: Context) {
+    private val appContext = context.applicationContext
+
+    private val preferences: SharedPreferences = appContext.getSharedPreferences(
         "dearme_preferences",
         Context.MODE_PRIVATE
     )
 
     private val encryptedPreferences: SharedPreferences by lazy {
-        val masterKey = MasterKey.Builder(context)
+        val masterKey = MasterKey.Builder(appContext)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
         EncryptedSharedPreferences.create(
-            context,
+            appContext,
             "dearme_secure_preferences",
             masterKey,
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
@@ -26,6 +28,14 @@ class PreferencesRepository(context: Context) {
     }
 
     companion object {
+        @Volatile
+        private var instance: PreferencesRepository? = null
+
+        fun getInstance(context: Context): PreferencesRepository =
+            instance ?: synchronized(this) {
+                instance ?: PreferencesRepository(context).also { instance = it }
+            }
+
         private const val KEY_EMAIL = "email"
         private const val KEY_PASSWORD = "password"
         private const val KEY_SMTP_SERVER = "smtp_server"

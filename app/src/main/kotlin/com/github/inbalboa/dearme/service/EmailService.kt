@@ -45,7 +45,7 @@ class EmailService : LifecycleService() {
         val text = intent.getStringExtra(EXTRA_TEXT)
         val extraText = intent.getStringExtra(EXTRA_EXTRA_TEXT)
 
-        val preferencesRepository = PreferencesRepository(this)
+        val preferencesRepository = PreferencesRepository.getInstance(this)
         val emailRepository = EmailRepository()
 
         // Load saved preferences

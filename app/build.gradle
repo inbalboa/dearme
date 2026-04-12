@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.plugin.compose'
 }
 
 static def getDateTime() {
@@ -21,9 +22,13 @@ if (keystorePropertiesFile.exists()) {
     }
 }
 
+base {
+    archivesName = "dearme"
+}
+
 android {
     namespace 'com.github.inbalboa.dearme'
-    compileSdk 35
+    compileSdk 36
 
     def code = gitCount()
     def name =  String.format('%s.%03d', getDateTime(), code)
@@ -31,11 +36,10 @@ android {
     defaultConfig {
         applicationId "com.github.inbalboa"
         minSdk 28
-        targetSdk 35
+        targetSdk 36
         versionCode code
         versionName name
         resourceConfigurations = ['en']
-        setProperty("archivesBaseName", String.format('dearme-%s', name))
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -83,10 +87,6 @@ android {
         compose true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion compose_version
-    }
-
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
@@ -102,29 +102,34 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.16.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.9.1'
-    implementation 'androidx.lifecycle:lifecycle-service:2.9.1'
-    implementation 'androidx.activity:activity-compose:1.10.1'
+    implementation 'androidx.core:core-ktx:1.18.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.10.0'
+    implementation 'androidx.lifecycle:lifecycle-service:2.10.0'
+    implementation 'androidx.activity:activity-compose:1.13.0'
 
-    // Compose
-    implementation "androidx.compose.ui:ui:$compose_version"
-    implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
-    implementation 'androidx.compose.material3:material3:1.3.2'
-    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.9.1"
+    // Compose BOM
+    def composeBom = platform('androidx.compose:compose-bom:2026.03.01')
+    implementation composeBom
+    androidTestImplementation composeBom
+
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    implementation 'androidx.compose.material3:material3'
+    implementation 'androidx.compose.material:material-icons-core'
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0"
 
     // Coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
 
     // Email
-    implementation 'com.sun.mail:android-mail:1.6.7'
-    implementation 'com.sun.mail:android-activation:1.6.7'
+    implementation 'com.sun.mail:android-mail:1.6.8'
+    implementation 'com.sun.mail:android-activation:1.6.8'
 
     // Testing
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
-    debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
-    debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+    androidTestImplementation 'androidx.test.ext:junit:1.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
+    debugImplementation 'androidx.compose.ui:ui-tooling'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest'
 }

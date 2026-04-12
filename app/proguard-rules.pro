@@ -20,10 +20,21 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-# Keep JavaMail classes
--keep class javax.mail.** { *; }
--keep class javax.activation.** { *; }
--keep class com.sun.mail.** { *; }
+# Keep JavaMail classes used by EmailRepository
+-keep class javax.mail.Session { *; }
+-keep class javax.mail.Authenticator { *; }
+-keep class javax.mail.PasswordAuthentication { <init>(...); }
+-keep class javax.mail.Message { *; }
+-keep class javax.mail.Message$RecipientType { *; }
+-keep class javax.mail.Transport { public static void send(javax.mail.Message); }
+-keep class javax.mail.internet.MimeMessage { <init>(...); *; }
+-keep class javax.mail.internet.InternetAddress { <init>(...); public static javax.mail.internet.InternetAddress[] parse(java.lang.String); }
+-keep class javax.mail.MessagingException { <init>(...); }
+
+# Keep SMTP provider loaded via reflection by JavaMail
+-keep class com.sun.mail.smtp.SMTPProvider { *; }
+-keep class com.sun.mail.smtp.SMTPTransport { *; }
+
 -dontwarn javax.mail.**
 -dontwarn javax.activation.**
--dontwarn com.sun.mail.** 
+-dontwarn com.sun.mail.**

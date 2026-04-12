@@ -3,12 +3,27 @@ package com.github.inbalboa.dearme.repository
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 
 class PreferencesRepository(context: Context) {
     private val preferences: SharedPreferences = context.getSharedPreferences(
         "dearme_preferences",
         Context.MODE_PRIVATE
     )
+
+    private val encryptedPreferences: SharedPreferences by lazy {
+        val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+        EncryptedSharedPreferences.create(
+            context,
+            "dearme_secure_preferences",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
 
     companion object {
         private const val KEY_EMAIL = "email"
@@ -26,7 +41,7 @@ class PreferencesRepository(context: Context) {
     }
 
     fun savePassword(password: String) {
-        preferences.edit { putString(KEY_PASSWORD, password)}
+        encryptedPreferences.edit { putString(KEY_PASSWORD, password) }
     }
 
     fun saveSmtpServer(server: String) {
@@ -52,7 +67,7 @@ class PreferencesRepository(context: Context) {
     // Load methods
     fun getEmail(): String = preferences.getString(KEY_EMAIL, null) ?: ""
 
-    fun getPassword(): String = preferences.getString(KEY_PASSWORD, null) ?: ""
+    fun getPassword(): String = encryptedPreferences.getString(KEY_PASSWORD, null) ?: ""
 
     fun getSmtpServer(): String = preferences.getString(KEY_SMTP_SERVER, null) ?: "smtp.gmail.com"
 

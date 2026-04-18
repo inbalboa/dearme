@@ -4,46 +4,45 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.compose'
 }
 
-static def getDateTime() {
-    new Date().format('yyyyMMdd')
-}
+def gitCountProvider = providers.exec {
+    commandLine 'git', 'rev-list', 'HEAD', '--count'
+}.standardOutput.asText.map { it.trim().toInteger() }
 
-static def gitCount() {
-    def result = 'git rev-list HEAD --count'.execute().getText().trim()
-    if (result.empty) throw new RuntimeException("Could not get Git count on this platform? Command output: ${result}")
-    result.toInteger()
-}
+def gitBranchProvider = providers.exec {
+    commandLine 'git', 'rev-parse', '--abbrev-ref', 'HEAD'
+}.standardOutput.asText.map { it.trim() }
 
 def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file(".signing/keystore.properties")
+def keystorePropertiesFile = rootProject.file('.signing/keystore.properties')
 if (keystorePropertiesFile.exists()) {
     keystorePropertiesFile.withInputStream {
         keystoreProperties.load(it)
     }
 }
 
+def code = gitCountProvider.get()
+def name = String.format('%s.%04d', new Date().format('yyyyMMdd'), code)
+def branch = gitBranchProvider.get()
+
 base {
-    archivesName = "dearme"
+    archivesName = "dearme-${name}[${branch}]"
 }
 
 android {
-    namespace 'com.github.inbalboa.dearme'
+    namespace = 'com.github.inbalboa.dearme'
     compileSdk = 36
 
-    def code = gitCount()
-    def name =  String.format('%s.%03d', getDateTime(), code)
-
     defaultConfig {
-        applicationId "com.github.inbalboa"
-        minSdk 28
-        targetSdk 36
-        versionCode code
-        versionName name
+        applicationId = 'com.github.inbalboa.dearme'
+        minSdk = 28
+        targetSdk = 36
+        versionCode = code
+        versionName = name
         resourceConfigurations = ['en']
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         vectorDrawables {
-            useSupportLibrary true
+            useSupportLibrary = true
         }
     }
 
@@ -51,32 +50,32 @@ android {
         release {
             def storeFilePath = keystoreProperties.getProperty('storeFile')
             if (storeFilePath) {
-                storeFile file(storeFilePath)
+                storeFile = file(storeFilePath)
             }
-            storePassword keystoreProperties.getProperty('storePassword')
-            keyAlias keystoreProperties.getProperty('keyAlias')
-            keyPassword keystoreProperties.getProperty('keyPassword')
+            storePassword = keystoreProperties.getProperty('storePassword')
+            keyAlias = keystoreProperties.getProperty('keyAlias')
+            keyPassword = keystoreProperties.getProperty('keyPassword')
         }
     }
 
     buildTypes {
         debug {
             ext.alwaysUpdateBuildId = false
-            debuggable true
-            minifyEnabled false
+            debuggable = true
+            minifyEnabled = false
         }
         release {
-            debuggable false
-            minifyEnabled true
-            shrinkResources true
+            debuggable = false
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            signingConfig = signingConfigs.release
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
@@ -84,8 +83,8 @@ android {
     }
 
     buildFeatures {
-        compose true
-        buildConfig true
+        compose = true
+        buildConfig = true
     }
 
     packagingOptions {
@@ -117,7 +116,7 @@ dependencies {
     implementation 'androidx.compose.ui:ui-tooling-preview'
     implementation 'androidx.compose.material3:material3'
     implementation 'androidx.compose.material:material-icons-core'
-    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0"
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0'
 
     // Coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'

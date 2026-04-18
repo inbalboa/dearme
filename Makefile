@@ -4,6 +4,8 @@ build:
 	@printf "==> Generating signed APK...\n"
 	@sh gradlew clean
 	@sh gradlew assembleRelease
+	@printf "\n==> APK copied to app/release/\n"
+	@rsync --archive --delete app/build/outputs/apk/release/ app/release/
 
 lint:
 	@printf "==> Linting...\n"

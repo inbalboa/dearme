@@ -166,7 +166,7 @@ class EmailViewModel(
                     EmailResult.Success
                 } else {
                     EmailResult.Error(
-                        EmailRepository.userFriendlyError(result.exceptionOrNull())
+                        result.exceptionOrNull()?.message ?: "Failed to send email"
                     )
                 }
             )
@@ -199,11 +199,11 @@ class EmailViewModel(
             showSmtpAutofillDialog = false
         )
     }
-    
+
     private fun showAboutDialog() {
         _state.value = _state.value.copy(showAboutDialog = true)
     }
-    
+
     private fun dismissAboutDialog() {
         _state.value = _state.value.copy(showAboutDialog = false)
     }

@@ -27,11 +27,17 @@
             </intent-filter>
         </activity>
 
+        <!-- Email Service for background email sending -->
+        <service
+            android:name=".service.EmailService"
+            android:enabled="true"
+            android:exported="false" />
+
         <!-- Activity for handling share intents -->
         <activity
             android:name=".ShareActivity"
             android:exported="true"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:theme="@android:style/Theme.NoDisplay"
             android:noHistory="true"
             android:excludeFromRecents="true">
             <!-- Handle text sharing -->

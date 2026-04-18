@@ -1,5 +1,6 @@
 package com.github.inbalboa.dearme.util
 
+import android.util.Patterns
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -24,7 +25,7 @@ object UrlTitleFetcher {
      * Checks if the given text is a valid URL
      */
     fun isUrl(text: String): Boolean {
-        return android.util.Patterns.WEB_URL.matcher(text.trim()).matches()
+        return Patterns.WEB_URL.matcher(text.trim()).matches()
     }
 
     /**

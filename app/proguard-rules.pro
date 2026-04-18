@@ -38,7 +38,3 @@
 -dontwarn javax.mail.**
 -dontwarn javax.activation.**
 -dontwarn com.sun.mail.**
-
-# Tink (used by EncryptedSharedPreferences)
--dontwarn com.google.errorprone.annotations.**
--dontwarn javax.annotation.**

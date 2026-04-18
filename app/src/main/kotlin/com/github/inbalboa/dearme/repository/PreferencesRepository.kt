@@ -3,8 +3,7 @@ package com.github.inbalboa.dearme.repository
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
+import com.github.inbalboa.dearme.util.PasswordEncryptor
 
 class PreferencesRepository private constructor(context: Context) {
     private val appContext = context.applicationContext
@@ -13,19 +12,6 @@ class PreferencesRepository private constructor(context: Context) {
         "dearme_preferences",
         Context.MODE_PRIVATE
     )
-
-    private val encryptedPreferences: SharedPreferences by lazy {
-        val masterKey = MasterKey.Builder(appContext)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
-        EncryptedSharedPreferences.create(
-            appContext,
-            "dearme_secure_preferences",
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
-    }
 
     companion object {
         @Volatile
@@ -51,7 +37,8 @@ class PreferencesRepository private constructor(context: Context) {
     }
 
     fun savePassword(password: String) {
-        encryptedPreferences.edit { putString(KEY_PASSWORD, password) }
+        val encrypted = if (password.isNotEmpty()) PasswordEncryptor.encrypt(password) else ""
+        preferences.edit { putString(KEY_PASSWORD, encrypted) }
     }
 
     fun saveSmtpServer(server: String) {
@@ -77,7 +64,15 @@ class PreferencesRepository private constructor(context: Context) {
     // Load methods
     fun getEmail(): String = preferences.getString(KEY_EMAIL, null) ?: ""
 
-    fun getPassword(): String = encryptedPreferences.getString(KEY_PASSWORD, null) ?: ""
+    fun getPassword(): String {
+        val encrypted = preferences.getString(KEY_PASSWORD, null)
+        if (encrypted.isNullOrEmpty()) return ""
+        return try {
+            PasswordEncryptor.decrypt(encrypted)
+        } catch (_: Exception) {
+            ""
+        }
+    }
 
     fun getSmtpServer(): String = preferences.getString(KEY_SMTP_SERVER, null) ?: "smtp.gmail.com"
 

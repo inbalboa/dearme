@@ -122,9 +122,6 @@ dependencies {
     // Coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
 
-    // Security
-    implementation 'androidx.security:security-crypto:1.1.0'
-
     // Email
     implementation 'com.sun.mail:android-mail:1.6.8'
     implementation 'com.sun.mail:android-activation:1.6.8'

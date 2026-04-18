@@ -1,4 +1,4 @@
-TAG := $(shell sh -c 'date +%Y%m%d; git rev-list HEAD --count' | paste -sd .)
+TAG := $(shell sh -c 'printf "%s.%03d\n" "$$(date +%Y%m%d)" "$$(git rev-list HEAD --count)"')
 
 build:
 	@printf "==> Generating signed APK...\n"

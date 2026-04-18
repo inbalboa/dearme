@@ -29,6 +29,7 @@ base {
 }
 
 android {
+    ndkVersion = '30.0.14904198'
     namespace = 'com.github.inbalboa.dearme'
     compileSdk = 36
 

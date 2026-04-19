@@ -32,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.LinkAnnotation
@@ -88,16 +87,17 @@ fun EmailScreen(
         )
     }
 
-    if (state.showSmtpAutofillDialog && state.smtpAutofillSuggestion != null) {
+    val smtpSuggestion = state.smtpAutofillSuggestion
+    if (state.showSmtpAutofillDialog && smtpSuggestion != null) {
         AlertDialog(
             onDismissRequest = { viewModel.handleIntent(EmailIntent.DismissSmtpAutofill) },
             title = {
-                Text("${state.smtpAutofillSuggestion!!.providerName} Provider Detected")
+                Text("${smtpSuggestion.providerName} Provider Detected")
             },
             text = {
                 Column {
                     Text(
-                        text = "Would you like to automatically configure the SMTP settings for ${state.smtpAutofillSuggestion!!.providerName}?"
+                        text = "Would you like to automatically configure the SMTP settings for ${smtpSuggestion.providerName}?"
                     )
                 }
             },

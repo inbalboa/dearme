@@ -20,6 +20,7 @@ data class PageMetadata(
 object UrlTitleFetcher {
 
     private const val TIMEOUT_MS = 5000L
+    private const val MAX_READ_BYTES = 64 * 1024
 
     /**
      * Checks if the given text is a valid URL
@@ -73,7 +74,11 @@ object UrlTitleFetcher {
                 }
 
                 val inputStream = getDecompressedInputStream(connection)
-                val content = inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+                val content = inputStream.bufferedReader(Charsets.UTF_8).use {
+                    val buffer = CharArray(MAX_READ_BYTES)
+                    val charsRead = it.read(buffer)
+                    if (charsRead > 0) String(buffer, 0, charsRead) else ""
+                }
                 extractMetadata(content)
             } catch (_: IOException) {
                 PageMetadata(null, null)
@@ -130,7 +135,7 @@ object UrlTitleFetcher {
         val ogTitle = extractMetaProperty(html, "og:title")
         val title = ogTitle ?: extractHtmlTitle(html)
         val description = extractMetaProperty(html, "og:description")
-            ?: extractMetaName(html, "description")
+            ?: extractMetaName(html)
         return PageMetadata(title, description)
     }
 
@@ -172,7 +177,7 @@ object UrlTitleFetcher {
     /**
      * Extracts content from a meta tag by name attribute
      */
-    private fun extractMetaName(html: String, name: String): String? {
+    private fun extractMetaName(html: String, name: String = "description"): String? {
         val pattern = Pattern.compile(
             """<meta\s[^>]*name\s*=\s*["']$name["'][^>]*content\s*=\s*["']([^"']*)["'][^>]*/?>""" +
                 "|" +

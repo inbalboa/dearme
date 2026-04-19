@@ -47,6 +47,7 @@ object PasswordEncryptor {
 
     fun decrypt(encoded: String): String {
         val combined = Base64.decode(encoded, Base64.NO_WRAP)
+        require(combined.size > GCM_IV_LENGTH) { "Invalid encrypted data" }
         val iv = combined.sliceArray(0 until GCM_IV_LENGTH)
         val ciphertext = combined.sliceArray(GCM_IV_LENGTH until combined.size)
         val cipher = Cipher.getInstance(TRANSFORMATION)

@@ -42,10 +42,14 @@ object UrlTitleFetcher {
      */
     suspend fun fetchMetadata(url: String): PageMetadata = withContext(Dispatchers.IO) {
         withTimeoutOrNull(TIMEOUT_MS) {
-            try {
+            val connection = try {
                 val normalizedUrl = normalizeUrl(url)
-                val connection = URL(normalizedUrl).openConnection() as HttpURLConnection
+                URL(normalizedUrl).openConnection() as HttpURLConnection
+            } catch (_: Exception) {
+                return@withTimeoutOrNull PageMetadata(null, null)
+            }
 
+            try {
                 connection.apply {
                     requestMethod = "GET"
                     connectTimeout = 3000
@@ -75,6 +79,8 @@ object UrlTitleFetcher {
                 PageMetadata(null, null)
             } catch (_: Exception) {
                 PageMetadata(null, null)
+            } finally {
+                connection.disconnect()
             }
         } ?: PageMetadata(null, null)
     }

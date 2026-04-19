@@ -2,6 +2,8 @@
 
 An Android application to send emails to yourself.
 
+[<img src="https://raw.githubusercontent.com/rubenpgrady/get-it-on-github/refs/heads/main/get-it-on-github.png" height="80">](https://github.com/inbalboa/dearme/releases/latest)
+
 ![Screenshot](screenshot.png)
 
 ## How It Works

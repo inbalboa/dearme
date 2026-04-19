@@ -47,10 +47,6 @@ object EmailProviderConfig {
         "zoho.com" to SmtpConfig("smtp.zoho.com", "587", "Zoho"),
         "zohomail.com" to SmtpConfig("smtp.zoho.com", "587", "Zoho Mail"),
 
-        // ProtonMail
-        "protonmail.com" to SmtpConfig("127.0.0.1", "1025", "ProtonMail"),
-        "proton.me" to SmtpConfig("127.0.0.1", "1025", "Proton"),
-
         // FastMail
         "fastmail.com" to SmtpConfig("smtp.fastmail.com", "587", "FastMail"),
         "fastmail.fm" to SmtpConfig("smtp.fastmail.com", "587", "FastMail"),

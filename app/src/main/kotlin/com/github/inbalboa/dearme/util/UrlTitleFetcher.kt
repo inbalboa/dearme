@@ -22,6 +22,31 @@ object UrlTitleFetcher {
     private const val TIMEOUT_MS = 5000L
     private const val MAX_READ_BYTES = 64 * 1024
 
+    private val titlePattern = Pattern.compile("<title[^>]*>([^<]*)</title>", Pattern.CASE_INSENSITIVE)
+
+    private val metaPropertyPatterns = mutableMapOf<String, Pattern>()
+    private val metaNamePatterns = mutableMapOf<String, Pattern>()
+
+    private fun getMetaPropertyPattern(property: String): Pattern =
+        metaPropertyPatterns.getOrPut(property) {
+            Pattern.compile(
+                """<meta\s[^>]*property\s*=\s*["']$property["'][^>]*content\s*=\s*["']([^"']*)["'][^>]*/?>""" +
+                    "|" +
+                    """<meta\s[^>]*content\s*=\s*["']([^"']*)["'][^>]*property\s*=\s*["']$property["'][^>]*/?>""",
+                Pattern.CASE_INSENSITIVE
+            )
+        }
+
+    private fun getMetaNamePattern(name: String): Pattern =
+        metaNamePatterns.getOrPut(name) {
+            Pattern.compile(
+                """<meta\s[^>]*name\s*=\s*["']$name["'][^>]*content\s*=\s*["']([^"']*)["'][^>]*/?>""" +
+                    "|" +
+                    """<meta\s[^>]*content\s*=\s*["']([^"']*)["'][^>]*name\s*=\s*["']$name["'][^>]*/?>""",
+                Pattern.CASE_INSENSITIVE
+            )
+        }
+
     /**
      * Checks if the given text is a valid URL
      */
@@ -143,7 +168,6 @@ object UrlTitleFetcher {
      * Extracts the <title> tag content from HTML
      */
     private fun extractHtmlTitle(html: String): String? {
-        val titlePattern = Pattern.compile("<title[^>]*>([^<]*)</title>", Pattern.CASE_INSENSITIVE)
         val matcher = titlePattern.matcher(html)
 
         return if (matcher.find()) {
@@ -158,13 +182,7 @@ object UrlTitleFetcher {
      * Extracts content from an Open Graph meta tag
      */
     private fun extractMetaProperty(html: String, property: String): String? {
-        val pattern = Pattern.compile(
-            """<meta\s[^>]*property\s*=\s*["']$property["'][^>]*content\s*=\s*["']([^"']*)["'][^>]*/?>""" +
-                "|" +
-                """<meta\s[^>]*content\s*=\s*["']([^"']*)["'][^>]*property\s*=\s*["']$property["'][^>]*/?>""",
-            Pattern.CASE_INSENSITIVE
-        )
-        val matcher = pattern.matcher(html)
+        val matcher = getMetaPropertyPattern(property).matcher(html)
         if (matcher.find()) {
             val content = (matcher.group(1) ?: matcher.group(2))?.trim()
             if (!content.isNullOrBlank()) {
@@ -178,13 +196,7 @@ object UrlTitleFetcher {
      * Extracts content from a meta tag by name attribute
      */
     private fun extractMetaName(html: String, name: String = "description"): String? {
-        val pattern = Pattern.compile(
-            """<meta\s[^>]*name\s*=\s*["']$name["'][^>]*content\s*=\s*["']([^"']*)["'][^>]*/?>""" +
-                "|" +
-                """<meta\s[^>]*content\s*=\s*["']([^"']*)["'][^>]*name\s*=\s*["']$name["'][^>]*/?>""",
-            Pattern.CASE_INSENSITIVE
-        )
-        val matcher = pattern.matcher(html)
+        val matcher = getMetaNamePattern(name).matcher(html)
         if (matcher.find()) {
             val content = (matcher.group(1) ?: matcher.group(2))?.trim()
             if (!content.isNullOrBlank()) {

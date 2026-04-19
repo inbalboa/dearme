@@ -335,7 +335,7 @@ fun EmailScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
-            enabled = !state.isLoading && state.emailError == null && state.smtpServerError == null && state.smtpPortError == null
+            enabled = !state.isLoading && state.password.isNotBlank() && state.emailError == null && state.smtpServerError == null && state.smtpPortError == null
         ) {
             if (state.isLoading) {
                 CircularProgressIndicator(

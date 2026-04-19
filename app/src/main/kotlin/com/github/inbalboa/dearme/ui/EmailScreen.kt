@@ -119,8 +119,6 @@ fun EmailScreen(
     }
 
         if (state.showAboutDialog) {
-        LocalContext.current
-
         AlertDialog(
             onDismissRequest = { viewModel.handleIntent(EmailIntent.DismissAboutDialog) },
             title = {

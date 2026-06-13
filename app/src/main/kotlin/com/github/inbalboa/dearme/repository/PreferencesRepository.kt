@@ -23,6 +23,7 @@ class PreferencesRepository private constructor(context: Context) {
             }
 
         private const val KEY_EMAIL = "email"
+        private const val KEY_SENDER_NAME = "sender_name"
         private const val KEY_PASSWORD = "password"
         private const val KEY_SMTP_SERVER = "smtp_server"
         private const val KEY_SMTP_PORT = "smtp_port"
@@ -34,6 +35,10 @@ class PreferencesRepository private constructor(context: Context) {
     // Save methods
     fun saveEmail(email: String) {
         preferences.edit { putString(KEY_EMAIL, email) }
+    }
+
+    fun saveSenderName(senderName: String) {
+        preferences.edit { putString(KEY_SENDER_NAME, senderName) }
     }
 
     fun savePassword(password: String) {
@@ -63,6 +68,8 @@ class PreferencesRepository private constructor(context: Context) {
 
     // Load methods
     fun getEmail(): String = preferences.getString(KEY_EMAIL, null) ?: ""
+
+    fun getSenderName(): String = preferences.getString(KEY_SENDER_NAME, null) ?: ""
 
     fun getPassword(): String {
         val encrypted = preferences.getString(KEY_PASSWORD, null)

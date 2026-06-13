@@ -51,6 +51,7 @@ class EmailService : LifecycleService() {
 
         // Load saved preferences
         val email = preferencesRepository.getEmail()
+        val senderName = preferencesRepository.getSenderName()
         val password = preferencesRepository.getPassword()
         val smtpServer = preferencesRepository.getSmtpServer()
         val smtpPort = preferencesRepository.getSmtpPort()
@@ -104,7 +105,8 @@ class EmailService : LifecycleService() {
                     subject = emailSubject,
                     body = sharedText,
                     header = header,
-                    footer = footer
+                    footer = footer,
+                    senderName = senderName
                 )
                 // TODO: somehow show the result to the user
             } catch (_: Exception) {

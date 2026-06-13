@@ -4,6 +4,7 @@ import com.github.inbalboa.dearme.util.SmtpConfig
 
 data class EmailState(
     val email: String = "",
+    val senderName: String = "",
     val password: String = "",
     val smtpServer: String = "smtp.gmail.com",
     val smtpPort: String = "587",

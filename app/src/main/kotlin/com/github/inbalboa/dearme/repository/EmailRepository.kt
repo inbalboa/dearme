@@ -16,7 +16,8 @@ class EmailRepository {
         subject: String,
         body: String,
         header: String,
-        footer: String
+        footer: String,
+        senderName: String = ""
     ): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val props = Properties().apply {
@@ -46,8 +47,14 @@ class EmailRepository {
                 }
             }
 
+            val fromAddress = if (senderName.isNotBlank()) {
+                InternetAddress(email, senderName, "UTF-8")
+            } else {
+                InternetAddress(email)
+            }
+
             val message = MimeMessage(session).apply {
-                setFrom(InternetAddress(email))
+                setFrom(fromAddress)
                 setRecipients(Message.RecipientType.TO, InternetAddress.parse(email))
                 this.subject = subject
                 setText(messageBody)

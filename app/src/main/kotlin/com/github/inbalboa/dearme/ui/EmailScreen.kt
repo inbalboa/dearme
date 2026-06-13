@@ -18,6 +18,7 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -240,6 +241,15 @@ fun EmailScreen(
                     singleLine = true,
                     isError = state.emailError != null,
                     supportingText = state.emailError?.let { { Text(it) } }
+                )
+
+                OutlinedTextField(
+                    value = state.senderName,
+                    onValueChange = { viewModel.handleIntent(EmailIntent.UpdateSenderName(it)) },
+                    label = { Text("Sender Name (optional)") },
+                    leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
 
                 OutlinedTextField(

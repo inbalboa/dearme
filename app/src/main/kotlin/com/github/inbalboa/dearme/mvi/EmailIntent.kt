@@ -3,6 +3,7 @@ package com.github.inbalboa.dearme.mvi
 sealed class EmailIntent {
     data object LoadSettings : EmailIntent()
     data class UpdateEmail(val email: String) : EmailIntent()
+    data class UpdateSenderName(val senderName: String) : EmailIntent()
     data class UpdatePassword(val password: String) : EmailIntent()
     data class UpdateSmtpServer(val server: String) : EmailIntent()
     data class UpdateSmtpPort(val port: String) : EmailIntent()

@@ -29,6 +29,7 @@ class EmailViewModel(
         when (intent) {
             is EmailIntent.LoadSettings -> loadSettings()
             is EmailIntent.UpdateEmail -> updateEmail(intent.email)
+            is EmailIntent.UpdateSenderName -> updateSenderName(intent.senderName)
             is EmailIntent.UpdatePassword -> updatePassword(intent.password)
             is EmailIntent.UpdateSmtpServer -> updateSmtpServer(intent.server)
             is EmailIntent.UpdateSmtpPort -> updateSmtpPort(intent.port)
@@ -48,6 +49,7 @@ class EmailViewModel(
         preferencesRepository?.let { prefs ->
             _state.value = _state.value.copy(
                 email = prefs.getEmail(),
+                senderName = prefs.getSenderName(),
                 password = prefs.getPassword(),
                 smtpServer = prefs.getSmtpServer(),
                 smtpPort = prefs.getSmtpPort(),
@@ -83,6 +85,11 @@ class EmailViewModel(
                 )
             }
         }
+    }
+
+    private fun updateSenderName(senderName: String) {
+        _state.value = _state.value.copy(senderName = senderName)
+        preferencesRepository?.saveSenderName(senderName)
     }
 
     private fun updatePassword(password: String) {
@@ -157,7 +164,8 @@ class EmailViewModel(
                 subject = currentState.subject.ifBlank { "DearMe: Test Message" },
                 body = "It works!",
                 header = currentState.header,
-                footer = currentState.footer
+                footer = currentState.footer,
+                senderName = currentState.senderName
             )
 
             _state.value = _state.value.copy(
